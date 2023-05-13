@@ -1,0 +1,59 @@
+#include <stdio.h>
+
+// Function to calculate the number of disk I/O operations for contiguous allocation
+int contiguousAllocation(int blockCount, int newBlock) {
+    // Check if the new block can be added contiguously
+    if (newBlock == blockCount + 1) {
+        // Block can be added contiguously
+        return 1;
+    } else {
+        // Block cannot be added contiguously
+        return 2;
+    }
+}
+
+// Function to calculate the number of disk I/O operations for linked allocation
+int linkedAllocation(int blockCount, int newBlock) {
+    if (blockCount == 0) {
+        // File is empty, create a new linked list with the new block
+        return 2;
+    } else {
+        // Traverse the linked list until the last block
+        // Each traversal requires one disk I/O operation
+        return blockCount + 1;
+    }
+}
+
+// Function to calculate the number of disk I/O operations for indexed (single-level) allocation
+int indexedAllocation(int blockCount, int newBlock) {
+    // Check if the index block is already in memory
+    if (blockCount == 0) {
+        // Index block is not in memory, read it from disk
+        return 2;
+    } else {
+        // Index block is already in memory, no disk I/O operation required
+        return 1;
+    }
+}
+
+int main() {
+    int blockCount = 100;  // Current number of blocks in the file
+    int newBlock;  // Block to be added
+
+    printf("Enter the block number to be added: ");
+    scanf("%d", &newBlock);
+
+    // Calculate disk I/O operations for contiguous allocation
+    int contiguousIO = contiguousAllocation(blockCount, newBlock);
+    printf("Contiguous allocation: %d disk I/O operations\n", contiguousIO);
+
+    // Calculate disk I/O operations for linked allocation
+    int linkedIO = linkedAllocation(blockCount, newBlock);
+    printf("Linked allocation: %d disk I/O operations\n", linkedIO);
+
+    // Calculate disk I/O operations for indexed allocation
+    int indexedIO = indexedAllocation(blockCount, newBlock);
+    printf("Indexed allocation: %d disk I/O operations\n", indexedIO);
+
+    return 0;
+}
