@@ -1,0 +1,60 @@
+#include<stdio.h>
+
+#define FILE_SIZE 100
+
+// Contiguous Allocation
+int contiguousAllocation(int blockNumber) {
+    if (blockNumber > FILE_SIZE) {
+        return -1;  // Invalid block number
+    }
+    return 1;  // 1 disk I/O operation for reading the file control block
+}
+
+// Linked Allocation
+int linkedAllocation(int blockNumber) {
+    if (blockNumber > FILE_SIZE) {
+        return -1;  // Invalid block number
+    }
+    return blockNumber + 1;  // blockNumber disk I/O operations for traversing the linked list
+}
+
+// Indexed Allocation (Single-level)
+int indexedAllocation(int blockNumber) {
+    if (blockNumber > FILE_SIZE) {
+        return -1;  // Invalid block number
+    }
+    return 2;  // 2 disk I/O operations for reading the file control block and the index block
+}
+
+int main() {
+    int blockNumber;
+
+    printf("Enter the block number to be added: ");
+    scanf("%d", &blockNumber);
+
+    // Contiguous Allocation
+    int contiguousIO = contiguousAllocation(blockNumber);
+    if (contiguousIO != -1) {
+        printf("Contiguous Allocation - Disk I/O operations: %d\n", contiguousIO);
+    } else {
+        printf("Contiguous Allocation - Invalid block number\n");
+    }
+
+    // Linked Allocation
+    int linkedIO = linkedAllocation(blockNumber);
+    if (linkedIO != -1) {
+        printf("Linked Allocation - Disk I/O operations: %d\n", linkedIO);
+    } else {
+        printf("Linked Allocation - Invalid block number\n");
+    }
+
+    // Indexed Allocation (Single-level)
+    int indexedIO = indexedAllocation(blockNumber);
+    if (indexedIO != -1) {
+        printf("Indexed Allocation (Single-level) - Disk I/O operations: %d\n", indexedIO);
+    } else {
+        printf("Indexed Allocation (Single-level) - Invalid block number\n");
+    }
+
+    return 0;
+}
