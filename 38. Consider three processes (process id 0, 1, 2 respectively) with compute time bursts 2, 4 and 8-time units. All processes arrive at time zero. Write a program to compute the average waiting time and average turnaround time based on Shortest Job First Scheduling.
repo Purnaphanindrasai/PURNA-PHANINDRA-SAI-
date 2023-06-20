@@ -1,0 +1,74 @@
+#include <stdio.h>
+
+#define MAX_PROCESSES 3
+
+typedef struct {
+    int processId;
+    int burstTime;
+    int waitingTime;
+    int turnaroundTime;
+} Process;
+
+void computeTimes(Process processes[], int numProcesses) {
+    int currentTime = 0;
+    int completedProcesses = 0;
+
+    while (completedProcesses < numProcesses) {
+        int shortestBurstTime = -1;
+        int shortestProcessIndex = -1;
+
+        for (int i = 0; i < numProcesses; i++) {
+            if (processes[i].burstTime > 0 && (shortestBurstTime == -1 || processes[i].burstTime < shortestBurstTime)) {
+                shortestBurstTime = processes[i].burstTime;
+                shortestProcessIndex = i;
+            }
+        }
+
+        if (shortestProcessIndex != -1) {
+            Process *currentProcess = &processes[shortestProcessIndex];
+            currentProcess->waitingTime = currentTime;
+            currentProcess->turnaroundTime = currentTime + currentProcess->burstTime;
+            currentTime += currentProcess->burstTime;
+            currentProcess->burstTime = 0;
+            completedProcesses++;
+        } else {
+            currentTime++;
+        }
+    }
+}
+
+float calculateAverage(int values[], int numValues) {
+    int sum = 0;
+
+    for (int i = 0; i < numValues; i++) {
+        sum += values[i];
+    }
+
+    return (float)sum / numValues;
+}
+
+int main() {
+    Process processes[MAX_PROCESSES] = {
+        {0, 2, 0, 0},
+        {1, 4, 0, 0},
+        {2, 8, 0, 0}
+    };
+
+    computeTimes(processes, MAX_PROCESSES);
+
+    int waitingTimes[MAX_PROCESSES];
+    int turnaroundTimes[MAX_PROCESSES];
+
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        waitingTimes[i] = processes[i].waitingTime;
+        turnaroundTimes[i] = processes[i].turnaroundTime;
+    }
+
+    float averageWaitingTime = calculateAverage(waitingTimes, MAX_PROCESSES);
+    float averageTurnaroundTime = calculateAverage(turnaroundTimes, MAX_PROCESSES);
+
+    printf("Average waiting time: %.2f\n", averageWaitingTime);
+    printf("Average turnaround time: %.2f\n", averageTurnaroundTime);
+
+    return 0;
+}
