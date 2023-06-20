@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int isPrime(int num) {
+    if (num <= 1)
+        return 0;
+
+    for (int i = 2; i * i <= num; i++) {
+        if (num % i == 0)
+            return 0;
+    }
+
+    return 1;
+}
+
+void generateFibonacci(int n) {
+    int first = 0, second = 1;
+
+    printf("Fibonacci Series: ");
+
+    for (int i = 0; i < n; i++) {
+        printf("%d ", first);
+        int next = first + second;
+        first = second;
+        second = next;
+    }
+
+    printf("\n");
+}
+
+int main() {
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        // Child process
+        int n;
+        printf("Enter the number of terms to generate in Fibonacci series: ");
+        scanf("%d", &n);
+        generateFibonacci(n);
+    } else if (pid > 0) {
+        // Parent process
+        wait(NULL);
+
+        printf("Prime Numbers: ");
+        for (int i = 2; i <= 100; i++) {
+            if (isPrime(i))
+                printf("%d ", i);
+        }
+        printf("\n");
+    } else {
+        printf("Fork failed.\n");
+        return 1;
+    }
+
+    return 0;
+}
