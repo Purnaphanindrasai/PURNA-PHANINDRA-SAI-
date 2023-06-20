@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define NUM_BLOCKS 16
+#define BLOCK_SIZE 1024
+#define NUM_INODES 8
+#define MIN_FILE_SIZE 1024
+
+typedef struct {
+    int startBlock;
+    int numBlocks;
+} FileAllocation;
+
+int isContiguousBlocksFree(int startBlock, int numBlocks, int blockStatus[]) {
+    for (int i = startBlock; i < startBlock + numBlocks; i++) {
+        if (blockStatus[i] != 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+void allocateContiguousBlocks(int startBlock, int numBlocks, int blockStatus[]) {
+    for (int i = startBlock; i < startBlock + numBlocks; i++) {
+        blockStatus[i] = 1;
+    }
+}
+
+void deallocateContiguousBlocks(int startBlock, int numBlocks, int blockStatus[]) {
+    for (int i = startBlock; i < startBlock + numBlocks; i++) {
+        blockStatus[i] = 0;
+    }
+}
+
+FileAllocation allocateFile(int fileSize, int blockStatus[]) {
+    int numBlocks = (fileSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    int startBlock = -1;
+
+    for (int i = NUM_INODES; i <= NUM_BLOCKS - numBlocks; i++) {
+        if (isContiguousBlocksFree(i, numBlocks, blockStatus)) {
+            startBlock = i;
+            break;
+        }
+    }
+
+    if (startBlock != -1) {
+        allocateContiguousBlocks(startBlock, numBlocks, blockStatus);
+    }
+
+    FileAllocation fileAllocation;
+    fileAllocation.startBlock = startBlock;
+    fileAllocation.numBlocks = numBlocks;
+    return fileAllocation;
+}
+
+void deallocateFile(FileAllocation fileAllocation, int blockStatus[]) {
+    if (fileAllocation.startBlock != -1) {
+        deallocateContiguousBlocks(fileAllocation.startBlock, fileAllocation.numBlocks, blockStatus);
+    }
+}
+
+void printBlockStatus(int blockStatus[]) {
+    printf("Block Status:\n");
+    for (int i = 0; i < NUM_BLOCKS; i++) {
+        printf("Block %d: %s\n", i, blockStatus[i] ? "Allocated" : "Free");
+    }
+}
+
+int main() {
+    int blockStatus[NUM_BLOCKS] = {0}; // 0: Free, 1: Allocated
+
+    int fileSize;
+    printf("Enter file size (in KB): ");
+    scanf("%d", &fileSize);
+
+    if (fileSize < MIN_FILE_SIZE) {
+        printf("File size should be at least 1 KB.\n");
+        return 0;
+    }
+
+    FileAllocation fileAllocation = allocateFile(fileSize, blockStatus);
+
+    if (fileAllocation.startBlock == -1) {
+        printf("Not enough contiguous blocks available for the file.\n");
+        return 0;
+    }
+
+    printf("File allocated successfully.\n");
+    printf("Start block: %d\n", fileAllocation.startBlock);
+    printf("Number of blocks: %d\n", fileAllocation.numBlocks);
+
+    printBlockStatus(blockStatus);
+
+    // Deallocate file
+    deallocateFile(fileAllocation, blockStatus);
+
+    printf("File deallocated.\n");
+
+    printBlockStatus(blockStatus);
+
+    return 0;
+}
