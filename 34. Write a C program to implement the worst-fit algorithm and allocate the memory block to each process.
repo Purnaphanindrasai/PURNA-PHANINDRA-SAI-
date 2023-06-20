@@ -1,0 +1,83 @@
+#include <stdio.h>
+
+#define MAX_BLOCKS 100
+#define MAX_PROCESSES 100
+
+// Structure to represent a memory block
+typedef struct {
+    int id;
+    int size;
+    int allocated;
+} MemoryBlock;
+
+// Structure to represent a process
+typedef struct {
+    int id;
+    int size;
+    int blockId;
+} Process;
+
+void worstFit(MemoryBlock blocks[], int numBlocks, Process processes[], int numProcesses) {
+    int i, j;
+    
+    for (i = 0; i < numProcesses; i++) {
+        int worstBlockId = -1;
+        
+        for (j = 0; j < numBlocks; j++) {
+            if (blocks[j].allocated == 0 && blocks[j].size >= processes[i].size) {
+                if (worstBlockId == -1 || blocks[j].size > blocks[worstBlockId].size) {
+                    worstBlockId = j;
+                }
+            }
+        }
+        
+        if (worstBlockId != -1) {
+            blocks[worstBlockId].allocated = 1;
+            processes[i].blockId = blocks[worstBlockId].id;
+        }
+    }
+}
+
+int main() {
+    MemoryBlock blocks[MAX_BLOCKS];
+    Process processes[MAX_PROCESSES];
+    int numBlocks, numProcesses;
+    int i;
+
+    printf("Enter the number of memory blocks: ");
+    scanf("%d", &numBlocks);
+
+    printf("Enter the size of each memory block:\n");
+    for (i = 0; i < numBlocks; i++) {
+        printf("Block %d: ", i + 1);
+        scanf("%d", &blocks[i].size);
+        blocks[i].id = i + 1;
+        blocks[i].allocated = 0;
+    }
+
+    printf("\nEnter the number of processes: ");
+    scanf("%d", &numProcesses);
+
+    printf("Enter the size of each process:\n");
+    for (i = 0; i < numProcesses; i++) {
+        printf("Process %d: ", i + 1);
+        scanf("%d", &processes[i].size);
+        processes[i].id = i + 1;
+        processes[i].blockId = -1;
+    }
+
+    worstFit(blocks, numBlocks, processes, numProcesses);
+
+    printf("\nMemory allocation:\n");
+    printf("Process\t\tSize\t\tBlock\n");
+    for (i = 0; i < numProcesses; i++) {
+        printf("%d\t\t%d\t\t", processes[i].id, processes[i].size);
+        if (processes[i].blockId != -1) {
+            printf("%d\n", processes[i].blockId);
+        } else {
+            printf("Not allocated\n");
+        }
+    }
+
+    return 0;
+}
