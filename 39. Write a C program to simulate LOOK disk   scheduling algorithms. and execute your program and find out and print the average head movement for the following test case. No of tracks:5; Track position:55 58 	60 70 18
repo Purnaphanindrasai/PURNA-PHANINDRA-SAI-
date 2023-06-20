@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define MAX_TRACKS 100
+
+int absDiff(int a, int b) {
+    return (a > b) ? (a - b) : (b - a);
+}
+
+int compare(const void *a, const void *b) {
+    return (*(int *)a - *(int *)b);
+}
+
+int findIndex(int trackPos, int tracks[], int numTracks, bool direction) {
+    int index = -1;
+
+    if (direction) {
+        for (int i = numTracks - 1; i >= 0; i--) {
+            if (tracks[i] <= trackPos) {
+                index = i;
+                break;
+            }
+        }
+    } else {
+        for (int i = 0; i < numTracks; i++) {
+            if (tracks[i] >= trackPos) {
+                index = i;
+                break;
+            }
+        }
+    }
+
+    return index;
+}
+
+float calculateAverageHeadMovement(int trackPos, int tracks[], int numTracks) {
+    qsort(tracks, numTracks, sizeof(int), compare);
+
+    int headMovement = 0;
+    bool direction = true; // true for moving towards higher tracks, false for moving towards lower tracks
+
+    int index = findIndex(trackPos, tracks, numTracks, direction);
+    if (index == -1) {
+        index = findIndex(trackPos, tracks, numTracks, !direction);
+        direction = !direction;
+    }
+
+    while (index != -1) {
+        headMovement += absDiff(trackPos, tracks[index]);
+        trackPos = tracks[index];
+        tracks[index] = -1;
+        index = findIndex(trackPos, tracks, numTracks, direction);
+        if (index == -1 && direction) {
+            index = findIndex(trackPos, tracks, numTracks, !direction);
+            direction = !direction;
+        }
+    }
+
+    return (float)headMovement / numTracks;
+}
+
+int main() {
+    int numTracks;
+    int trackPos;
+    int tracks[MAX_TRACKS];
+
+    printf("Enter the number of tracks: ");
+    scanf("%d", &numTracks);
+
+    printf("Enter the initial track position: ");
+    scanf("%d", &trackPos);
+
+    printf("Enter the track positions:\n");
+    for (int i = 0; i < numTracks; i++) {
+        scanf("%d", &tracks[i]);
+    }
+
+    float averageHeadMovement = calculateAverageHeadMovement(trackPos, tracks, numTracks);
+
+    printf("Average head movement: %.2f\n", averageHeadMovement);
+
+    return 0;
+}
+
