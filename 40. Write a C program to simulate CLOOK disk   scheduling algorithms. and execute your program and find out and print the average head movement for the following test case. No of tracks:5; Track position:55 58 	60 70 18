@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define MAX_TRACKS 100
+
+int absDiff(int a, int b) {
+    return (a > b) ? (a - b) : (b - a);
+}
+
+int compare(const void *a, const void *b) {
+    return (*(int *)a - *(int *)b);
+}
+
+int findIndex(int trackPos, int tracks[], int numTracks) {
+    int index = -1;
+
+    for (int i = 0; i < numTracks; i++) {
+        if (tracks[i] >= trackPos) {
+            index = i;
+            break;
+        }
+    }
+
+    return index;
+}
+
+float calculateAverageHeadMovement(int trackPos, int tracks[], int numTracks) {
+    qsort(tracks, numTracks, sizeof(int), compare);
+
+    int headMovement = 0;
+    int index = findIndex(trackPos, tracks, numTracks);
+
+    if (index == -1) {
+        index = 0;
+        headMovement += absDiff(trackPos, tracks[index]);
+        trackPos = tracks[index];
+    }
+
+    for (int i = index; i < numTracks; i++) {
+        headMovement += absDiff(trackPos, tracks[i]);
+        trackPos = tracks[i];
+    }
+
+    headMovement += absDiff(trackPos, tracks[0]);
+    trackPos = tracks[0];
+
+    for (int i = 1; i < index; i++) {
+        headMovement += absDiff(trackPos, tracks[i]);
+        trackPos = tracks[i];
+    }
+
+    return (float)headMovement / numTracks;
+}
+
+int main() {
+    int numTracks;
+    int trackPos;
+    int tracks[MAX_TRACKS];
+
+    printf("Enter the number of tracks: ");
+    scanf("%d", &numTracks);
+
+    printf("Enter the initial track position: ");
+    scanf("%d", &trackPos);
+
+    printf("Enter the track positions:\n");
+    for (int i = 0; i < numTracks; i++) {
+        scanf("%d", &tracks[i]);
+    }
+
+    float averageHeadMovement = calculateAverageHeadMovement(trackPos, tracks, numTracks);
+
+    printf("Average head movement: %.2f\n", averageHeadMovement);
+
+    return 0;
+}
